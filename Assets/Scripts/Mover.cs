@@ -16,7 +16,6 @@ public class Mover : MonoBehaviour
         for (int i = 0; i < _waypoints.Length; i++)
             _waypoints[i] = _route.GetChild(i).GetComponent<Transform>();
 
-        //_movementSpeed = 3f;
         _targetPoint = _waypoints[_nextPointIndex];
     }
 
@@ -35,9 +34,11 @@ public class Mover : MonoBehaviour
 
     private void Move()
     {
+        float requiredDistance = 1.5f;
+
         transform.Translate(Vector3.forward * _movementSpeed * Time.deltaTime);
 
-        if (Vector3.Distance(transform.position, _targetPoint.position) < 1.5f)
+        if (Vector3.Distance(transform.position, _targetPoint.position) < requiredDistance)
         {
             _nextPointIndex++;
 
