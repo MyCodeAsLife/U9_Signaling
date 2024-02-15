@@ -6,7 +6,7 @@ using UnityEngine;
 public class Signaling : MonoBehaviour
 {
     private AudioSource _audioSource;
-    private Coroutine _increaseSignaling;
+    private Coroutine _changeSignaling;
     private float _maxVolume;
     private float _minVolume;
     private float _rateOfChange;
@@ -24,10 +24,10 @@ public class Signaling : MonoBehaviour
     {
         if (other.GetComponent<Robber>())
         {
-            if (_increaseSignaling != null)
-                StopCoroutine(_increaseSignaling);
+            if (_changeSignaling != null)
+                StopCoroutine(_changeSignaling);
 
-            _increaseSignaling = StartCoroutine(IncreasingVolume(true));
+            _changeSignaling = StartCoroutine(ChangeVolume(true));
         }
     }
 
@@ -35,13 +35,13 @@ public class Signaling : MonoBehaviour
     {
         if (other.GetComponent<Robber>())
         {
-            StopCoroutine(_increaseSignaling);
+            StopCoroutine(_changeSignaling);
 
-            _increaseSignaling = StartCoroutine(IncreasingVolume(false));
+            _changeSignaling = StartCoroutine(ChangeVolume(false));
         }
     }
 
-    private IEnumerator IncreasingVolume(bool isRobbing)
+    private IEnumerator ChangeVolume(bool isRobbing)
     {
         if (isRobbing)
         {
