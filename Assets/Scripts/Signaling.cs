@@ -5,68 +5,63 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class Signaling : MonoBehaviour
 {
-    const string Robber = "Robber";
-
     private AudioSource _audioSource;
     private Coroutine _increaseSignaling;
-    private float _volume;
     private float _maxVolume;
     private float _minVolume;
+    private float _rateOfChange;
 
     private void Start()
     {
         _audioSource = GetComponent<AudioSource>();
-
-        _maxVolume = 1.0f;
+        _audioSource.volume = 0f;
+        _maxVolume = 0.999f;
         _minVolume = 0.001f;
+        _rateOfChange = 0.55f;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == Robber)
+        if (other.GetComponent<Robber>())
         {
-            _audioSource?.Play();
-            _increaseSignaling = StartCoroutine(IncreasingVolume());
+            if (_increaseSignaling != null)
+                StopCoroutine(_increaseSignaling);
+
+            _increaseSignaling = StartCoroutine(IncreasingVolume(true));
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.tag == Robber)
+        if (other.GetComponent<Robber>())
         {
             StopCoroutine(_increaseSignaling);
-            StartCoroutine(DecreasingVolume());
+
+            _increaseSignaling = StartCoroutine(IncreasingVolume(false));
         }
     }
 
-    private IEnumerator IncreasingVolume()
+    private IEnumerator IncreasingVolume(bool isRobbing)
     {
-        while (true)
+        if (isRobbing)
         {
-            _volume += (0.1f * Time.deltaTime);
-            _audioSource.volume = _volume;
+            _audioSource?.Play();
 
-            if (_volume >= _maxVolume)
-                yield break;
-
-            yield return null;
-        }
-    }
-
-    private IEnumerator DecreasingVolume()
-    {
-        while (true)
-        {
-            _volume -= (0.1f * Time.deltaTime);
-            _audioSource.volume = _volume;
-
-            if (_volume <= _minVolume)
+            while (_audioSource.volume <= _maxVolume)
             {
-                _audioSource?.Stop();
-                yield break;
+                _audioSource.volume = _audioSource.volume + _rateOfChange * Time.deltaTime;
+                yield return null;
+            }
+        }
+        else
+        {
+            while (_audioSource.volume >= _minVolume)
+            {
+                _audioSource.volume = _audioSource.volume - _rateOfChange * Time.deltaTime;
+                yield return null;
             }
 
-            yield return null;
+            _audioSource?.Stop();
         }
     }
 }

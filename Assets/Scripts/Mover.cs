@@ -19,7 +19,7 @@ public class Mover : MonoBehaviour
         _targetPoint = _waypoints[_nextPointIndex];
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         Move();
         Rotate();
