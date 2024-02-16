@@ -6,7 +6,7 @@ using UnityEngine;
 public class Signaling : MonoBehaviour
 {
     private AudioSource _audioSource;
-    private Coroutine _changeSignaling;
+    private Coroutine _signaling;
     private float _maxVolume;
     private float _minVolume;
     private float _rateOfChange;
@@ -24,10 +24,11 @@ public class Signaling : MonoBehaviour
     {
         if (other.GetComponent<Robber>())
         {
-            if (_changeSignaling != null)
-                StopCoroutine(_changeSignaling);
+            if (_signaling != null)
+                StopCoroutine(_signaling);
 
-            _changeSignaling = StartCoroutine(ChangeVolume(true));
+            //_signaling = StartCoroutine(ChangeVolume(true));
+            _signaling = StartCoroutine(IncreaseVolume());
         }
     }
 
@@ -35,10 +36,33 @@ public class Signaling : MonoBehaviour
     {
         if (other.GetComponent<Robber>())
         {
-            StopCoroutine(_changeSignaling);
+            StopCoroutine(_signaling);
 
-            _changeSignaling = StartCoroutine(ChangeVolume(false));
+            //_signaling = StartCoroutine(ChangeVolume(false));
+            _signaling = StartCoroutine(DecreaseVolume());
         }
+    }
+
+    private IEnumerator IncreaseVolume()
+    {
+        _audioSource?.Play();
+
+        while (_audioSource.volume <= _maxVolume)
+        {
+            _audioSource.volume = _audioSource.volume + _rateOfChange * Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    private IEnumerator DecreaseVolume()
+    {
+        while (_audioSource.volume >= _minVolume)
+        {
+            _audioSource.volume = _audioSource.volume - _rateOfChange * Time.deltaTime;
+            yield return null;
+        }
+
+        _audioSource?.Stop();
     }
 
     private IEnumerator ChangeVolume(bool isRobbing)
