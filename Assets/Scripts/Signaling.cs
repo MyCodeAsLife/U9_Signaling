@@ -5,8 +5,9 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class Signaling : MonoBehaviour
 {
+    private Coroutine _changeVolume;
     private AudioSource _audioSource;
-    private Coroutine _signaling;
+
     private float _maxVolume;
     private float _minVolume;
     private float _rateOfChange;
@@ -15,77 +16,56 @@ public class Signaling : MonoBehaviour
     {
         _audioSource = GetComponent<AudioSource>();
         _audioSource.volume = 0f;
-        _maxVolume = 0.999f;
-        _minVolume = 0.001f;
-        _rateOfChange = 0.55f;
+        _maxVolume = 1f;
+        _minVolume = 0f;
+        _rateOfChange = 0.35f;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Robber>())
-        {
-            if (_signaling != null)
-                StopCoroutine(_signaling);
-
-            //_signaling = StartCoroutine(ChangeVolume(true));
-            _signaling = StartCoroutine(IncreaseVolume());
-        }
+        if (other.TryGetComponent<Robber>(out Robber robber))
+            TurnOnAlarm();
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.GetComponent<Robber>())
-        {
-            StopCoroutine(_signaling);
-
-            //_signaling = StartCoroutine(ChangeVolume(false));
-            _signaling = StartCoroutine(DecreaseVolume());
-        }
+        if (other.TryGetComponent<Robber>(out Robber robber))
+            TurnOffAlarm();
     }
 
-    private IEnumerator IncreaseVolume()
+    private IEnumerator ChangeVolume(float volume)
     {
-        _audioSource?.Play();
-
-        while (_audioSource.volume <= _maxVolume)
+        while (_audioSource.volume != volume)
         {
-            _audioSource.volume = _audioSource.volume + _rateOfChange * Time.deltaTime;
-            yield return null;
-        }
-    }
-
-    private IEnumerator DecreaseVolume()
-    {
-        while (_audioSource.volume >= _minVolume)
-        {
-            _audioSource.volume = _audioSource.volume - _rateOfChange * Time.deltaTime;
+            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, volume, _rateOfChange * Time.deltaTime);
             yield return null;
         }
 
-        _audioSource?.Stop();
+        CheckStop();
+        _changeVolume = null;
     }
 
-    private IEnumerator ChangeVolume(bool isRobbing)
+    private void TurnOnAlarm()
     {
-        if (isRobbing)
-        {
+        if (_changeVolume == null)
             _audioSource?.Play();
-
-            while (_audioSource.volume <= _maxVolume)
-            {
-                _audioSource.volume = _audioSource.volume + _rateOfChange * Time.deltaTime;
-                yield return null;
-            }
-        }
         else
-        {
-            while (_audioSource.volume >= _minVolume)
-            {
-                _audioSource.volume = _audioSource.volume - _rateOfChange * Time.deltaTime;
-                yield return null;
-            }
+            StopCoroutine(_changeVolume);
 
+        _changeVolume = StartCoroutine(ChangeVolume(_maxVolume));
+    }
+
+    private void TurnOffAlarm()
+    {
+        if (_changeVolume != null)
+            StopCoroutine(_changeVolume);
+
+        _changeVolume = StartCoroutine(ChangeVolume(_minVolume));
+    }
+
+    private void CheckStop()
+    {
+        if (_audioSource.volume <= _minVolume)
             _audioSource?.Stop();
-        }
     }
 }

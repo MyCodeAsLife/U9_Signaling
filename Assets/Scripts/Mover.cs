@@ -14,7 +14,7 @@ public class Mover : MonoBehaviour
         _waypoints = new Transform[_route.childCount];
 
         for (int i = 0; i < _waypoints.Length; i++)
-            _waypoints[i] = _route.GetChild(i).GetComponent<Transform>();
+            _waypoints[i] = _route.GetChild(i).transform;
 
         _targetPoint = _waypoints[_nextPointIndex];
     }

@@ -1780,7 +1780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _route: {fileID: 232946351}
-  _movementSpeed: 7
+  _movementSpeed: 6
 --- !u!54 &1443956861
 Rigidbody:
   m_ObjectHideFlags: 0
