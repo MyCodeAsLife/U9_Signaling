@@ -1,10 +1,11 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider))]
+
 [RequireComponent(typeof(AudioSource))]
 public class Signaling : MonoBehaviour
 {
+    [SerializeField] private Collider _sensor;
     private Coroutine _changeVolume;
     private AudioSource _audioSource;
 
@@ -21,16 +22,16 @@ public class Signaling : MonoBehaviour
         _rateOfChange = 0.35f;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnEnable()
     {
-        if (other.TryGetComponent<Robber>(out Robber robber))
-            TurnOnAlarm();
+        _sensor.GetComponent<Sensor>().OnIntruderEnter += TurnOnAlarm;
+        _sensor.GetComponent<Sensor>().OnIntruderExit += TurnOffAlarm;
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnDisable()
     {
-        if (other.TryGetComponent<Robber>(out Robber robber))
-            TurnOffAlarm();
+        _sensor.GetComponent<Sensor>().OnIntruderEnter -= TurnOnAlarm;
+        _sensor.GetComponent<Sensor>().OnIntruderExit -= TurnOffAlarm;
     }
 
     private IEnumerator ChangeVolume(float volume)

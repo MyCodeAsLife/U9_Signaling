@@ -14,7 +14,7 @@ public class Mover : MonoBehaviour
         _waypoints = new Transform[_route.childCount];
 
         for (int i = 0; i < _waypoints.Length; i++)
-            _waypoints[i] = _route.GetChild(i).transform;
+            _waypoints[i] = _route.GetChild(i);
 
         _targetPoint = _waypoints[_nextPointIndex];
     }
@@ -40,11 +40,7 @@ public class Mover : MonoBehaviour
 
         if (Vector3.Distance(transform.position, _targetPoint.position) < requiredDistance)
         {
-            _nextPointIndex++;
-
-            if (_nextPointIndex >= _waypoints.Length)
-                _nextPointIndex = 0;
-
+            _nextPointIndex = (_nextPointIndex + 1) % _waypoints.Length;
             _targetPoint = _waypoints[_nextPointIndex];
         }
     }
